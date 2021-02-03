@@ -1,29 +1,115 @@
 import "./App.css";
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@material-ui/core";
+// import { Button, CircularProgress } from "@material-ui/core";
+
+// function useMouse() {
+//   const [mousePosition, setMousePosition] = useState({
+//     x: null,
+//     y: null,
+//   });
+//   useEffect(() => {
+//     function handle(e) {
+//       console.log(e);
+//       setMousePosition({
+//         x: e.offsetX,
+//         y: e.offsetY,
+//       });
+//     }
+
+//     document.getElementById("light").addEventListener("mousemove", handle);
+
+//     return () =>
+//       document.getElementById("light").removeEventListener("mousemove", handle);
+//   });
+//   return mousePosition;
+// }
+// function useMouse() {
+//   const [mousePosition, setMousePosition] = useState({
+//     x: 750,
+//     y: 350,
+//   });
+
+//   useEffect(() => {
+//     function handle(e) {
+//       document.getElementById("light").addEventListener("touchmove", (e) => {
+//         requestAnimationFrame(() => {
+//           setMousePosition({
+//             x: e.changedTouches[0].clientX,
+//             y: e.changedTouches[0].clientY,
+//           });
+//         });
+//       });
+//     }
+
+//     document.getElementById("light").addEventListener("touchstart", handle);
+//     document.getElementById("light").addEventListener("touchcancel", () => {
+//       document
+//         .getElementById("light")
+//         .removeEventListener("touchstart", handle);
+//     });
+//     document.getElementById("light").addEventListener("touchend", () => {
+//       document
+//         .getElementById("light")
+//         .removeEventListener("touchstart", handle);
+//     });
+//   });
+
+//   return mousePosition;
+// }
 
 function useMouse() {
   const [mousePosition, setMousePosition] = useState({
-    x: null,
-    y: null,
+    x: 750,
+    y: 350,
   });
   useEffect(() => {
     function handle(e) {
-      setMousePosition({
-        x: e.pageX,
-        y: e.pageY,
+      document.getElementById("light").addEventListener("touchmove", (e) => {
+        requestAnimationFrame(() => {
+          setMousePosition(
+            {
+              x: e.touches[0].screenX,
+              y: e.touches[0].screenY,
+            },
+            { passive: true }
+          );
+        });
       });
     }
+    document
+      .getElementById("light")
+      .addEventListener("touchstart", handle, { passive: true });
+    document.getElementById("light").addEventListener(
+      "touchend",
+      (e) => {
+        document
+          .getElementById("light")
+          .removeEventListener("touchstart", handle);
+      },
+      { passive: true }
+    );
+    document.getElementById("light").addEventListener(
+      "touchcancel",
+      () => {
+        document
+          .getElementById("light")
+          .removeEventListener("touchstart", handle);
+      },
+      { passive: true }
+    );
 
-    document.addEventListener("mousemove", handle);
-    return () => document.removeEventListener("mousemove", handle);
+    return () =>
+      document
+        .getElementById("light")
+        .removeEventListener("touchstart", handle);
   });
   return mousePosition;
 }
 
 function App() {
   const [needRender, setNeedRender] = useState(false);
-  const [start, setStart] = useState(false);
+  const [loaded, setIsLoaded] = useState(false);
+  // const [start, setStart] = useState(true);
   const [lightOn, setLightOn] = useState(true);
   const [panel2, setPanel2] = useState(false);
   const [panel3, setPanel3] = useState(false);
@@ -41,9 +127,9 @@ function App() {
 
   const { x, y } = useMouse();
 
-  function gameStart() {
-    setStart(true);
-  }
+  // function gameStart() {
+  //   setStart(true);
+  // }
 
   function notesList() {
     return (
@@ -58,7 +144,7 @@ function App() {
     if (showNotes) {
       return (
         <div id="note-pad">
-          <textarea id="new-note" ref={newNote} type="text"></textarea>
+          <input id="new-note" ref={newNote} type="text"></input>
           <div>{notesList()}</div>
 
           <br />
@@ -106,13 +192,7 @@ function App() {
       return (
         <div
           id="rod-box"
-          className="item"
-          onMouseEnter={() => {
-            document.getElementById("rod-box").style.filter = "brightness(60%)";
-          }}
-          onMouseLeave={() => {
-            document.getElementById("rod-box").style.filter = "brightness(15%)";
-          }}
+          className={x >= 620 && x < 832 && y >= 429 ? "item glow" : "item "}
         >
           <img
             id="rod"
@@ -122,6 +202,9 @@ function App() {
             onClick={() => {
               getRod();
               document.getElementById("rod").classList.add("put-in-pack");
+            }}
+            onLoad={() => {
+              console.log("rod loaded");
             }}
           />
         </div>
@@ -155,15 +238,7 @@ function App() {
       return (
         <div
           id="mbox-ground-box"
-          className="item"
-          onMouseEnter={() => {
-            document.getElementById("mbox-ground-box").style.filter =
-              "brightness(60%)";
-          }}
-          onMouseLeave={() => {
-            document.getElementById("mbox-ground-box").style.filter =
-              "brightness(15%)";
-          }}
+          className={x <= 177 && y <= 388 && y >= 147 ? "item glow" : "item "}
         >
           <img
             id="mbox-ground"
@@ -254,40 +329,54 @@ function App() {
     }
   }
 
-  if (!start) {
-    //
-    //
-    //start of App return statement
-    return (
-      <div className="content-wrap">
-        <div>
-          <Button variant="contained" color="primary" onClick={gameStart}>
-            Begin
-          </Button>
-        </div>
-      </div>
-    );
-  } else if (!panel2 && !panel3) {
+  // if (!start) {
+  //   //
+  //   //
+  //   //start of App return statement
+  //   return (
+  //     <div className="content-wrap">
+  //       <div>
+  //         <Button variant="contained" color="primary" onClick={gameStart}>
+  //           Begin
+  //         </Button>
+  //       </div>
+  //     </div>
+  //   );
+  // } else
+  if (!panel2 && !panel3) {
     //panel1 start
     return (
       <div className="content-wrap">
-        <img
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
           className="scene dark1 responsive"
-          src="/imgs/scene1-light.gif"
+          src="/imgs/scene1.mp4"
           alt="scene one"
+          onLoad={() => {
+            setIsLoaded(true);
+          }}
         />
-        <img
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
           id="light"
           className={
             lightOn
               ? "scene light1 responsive"
               : "scene light1 responsive light-off"
           }
-          src="/imgs/scene1-light.gif"
+          src="/imgs/scene1.mp4"
           alt="scene 1"
           style={{
-            maskPosition: `${x - 165}px ${y - 180}px`,
-            WebkitMaskPosition: `${x - 165}px ${y - 180}px`,
+            //I still have to account for the offset pixels because im positioning absolute this element. But better to bind
+            //listener to the target element
+            maskPosition: `${x - 210}px ${y - 250}px`,
+            WebkitMaskPosition: `${x - 210}px ${y - 250}px`,
           }}
         />
 
@@ -303,7 +392,7 @@ function App() {
             document.getElementById("path-text").classList.add("show");
           }}
         >
-          <span id="path-text" className="hide icon">
+          <span id="path-text" className="icon">
             <svg
               height="80"
               viewBox="0 0 52 60"
@@ -419,25 +508,43 @@ function App() {
     //panel 2 start
     return (
       <div className="content-wrap">
-        <img
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
           className="scene dark1 responsive"
-          src="/imgs/scene2.gif"
+          src="/imgs/scene2.mp4"
           alt="scene two"
+          onLoad={() => {
+            console.log("paneldark loaded");
+          }}
         />
-        <img
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
           id="light"
           className={
             lightOn
               ? "scene light1 responsive"
               : "scene light1 responsive light-off"
           }
-          src="/imgs/scene2.gif"
+          src="/imgs/scene2.mp4"
           alt="scene two"
           style={{
-            maskPosition: `${x - 165}px ${y - 180}px`,
-            WebkitMaskPosition: `${x - 165}px ${y - 180}px`,
+            //I still have to account for the offset pixels because im positioning absolute this element. But better to bind
+            //listener to the target element
+            maskPosition: `${x - 210}px ${y - 250}px`,
+            WebkitMaskPosition: `${x - 210}px ${y - 250}px`,
+          }}
+          onLoad={() => {
+            console.log("panellight loaded");
           }}
         />
+        <p>x:{x}</p>
+        <p>y:{y}</p>
         {shouldRodBeInScene()}
 
         <div
@@ -454,7 +561,7 @@ function App() {
             width: "100px",
           }}
         >
-          <span id="path-text" className="hide icon">
+          <span id="path-text" className="icon">
             <svg
               height="80"
               viewBox="0 0 52 60"
@@ -611,26 +718,41 @@ function App() {
     //start panel 3
     return (
       <div className="content-wrap">
-        <img
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
           className="scene dark1 responsive"
-          src="/imgs/cave1-entrance.gif"
+          src="/imgs/scene3.mp4"
           alt="scene"
+          onLoad={() => {
+            setIsLoaded(true);
+          }}
         />
-        <img
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
           id="light"
           className={
             lightOn
               ? "scene light1 responsive"
               : "scene light1 responsive light-off"
           }
-          src="/imgs/cave1-entrance.gif"
+          src="/imgs/scene3.mp4"
           alt="scene"
           style={{
-            maskPosition: `${x - 165}px ${y - 180}px`,
-            WebkitMaskPosition: `${x - 165}px ${y - 180}px`,
+            //I still have to account for the offset pixels because im positioning absolute this element. But better to bind
+            //listener to the target element
+            maskPosition: `${x - 210}px ${y - 250}px`,
+            WebkitMaskPosition: `${x - 210}px ${y - 250}px`,
           }}
         />
-
+        <p>x:{x}</p>
+        <p>y:{y}</p>
+        {shouldMboxBeInScene()}
         <div
           id="path-el"
           className="back-left"
@@ -675,7 +797,7 @@ function App() {
             </svg>
           </span>
         </div>
-        {shouldMboxBeInScene()}
+
         {/* inventory start */}
         <div id="inventory">
           {/* notes start */}

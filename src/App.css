@@ -7,6 +7,8 @@ p {
 body {
   background-color: rgb(0, 0, 0);
   font-family: monospace;
+
+  touch-action: none;
 }
 .content-wrap {
   display: flex;
@@ -33,6 +35,7 @@ body {
 #add-note-btn {
   position: absolute;
   height: 50px;
+  width: 50px;
   top: 2%;
   right: 5%;
   display: flex;
@@ -70,8 +73,8 @@ body {
 
   mask-image: url(./lightflicker.gif);
   -webkit-mask-image: url(./lightflicker.gif);
-  mask-size: 27%;
-  -webkit-mask-size: 27%;
+  mask-size: 37%;
+  -webkit-mask-size: 37%;
   mask-repeat: no-repeat;
   -webkit-mask-repeat: no-repeat;
   mask-position: 0px 0px;
@@ -194,9 +197,11 @@ svg {
 .item {
   position: absolute;
   /* border: 1px solid red; */
-
   filter: brightness(15%);
-  transition: filter 600ms linear;
+  transition: filter 450ms linear;
+}
+.glow {
+  filter: brightness(60%);
 }
 
 #rod-box {
@@ -207,8 +212,7 @@ svg {
   justify-content: center;
   align-items: center;
   top: 330px;
-
-  transform: rotate(15deg) translate(500px);
+  transform: rotate(15deg) translate(200px);
   cursor: help;
   /* border: 1px solid red; */
 }
@@ -278,7 +282,7 @@ svg {
   min-height: 212px;
   max-height: 320px;
   overflow: scroll;
-  width: 15vw;
+  width: 19vw;
   position: absolute;
   background-color: whitesmoke;
   transform: translate(0px, -212px);
